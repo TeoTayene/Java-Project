@@ -10,11 +10,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAOImpl implements UserDAO  {
-    private Connection connection;
+public class UserDBAccess implements UserDataAccess {
 
-    public UserDAOImpl() throws ConnectionDataAccessException {
-        connection = ConnectionDataAccess.getInstance();
+    public UserDBAccess() throws ConnectionDataAccessException {
     }
 
     @Override
@@ -44,34 +42,37 @@ public class UserDAOImpl implements UserDAO  {
                 "street_and_number = ?, phone_number = ?, biography = ?, is_admin = ?, home = ? " +
                 "WHERE id = ?";
         try {
-            PreparedStatement stmt = connection.prepareStatement(create ? sqlInsert : sqlUpdate);
-            stmt.setString(1, user.getEmail());
-            stmt.setString(2, user.getUsername());
-            stmt.setString(3, Encryption.createDBPassword(user.getPassword()));
-            stmt.setDate(4, new Date(user.getDateOfBirth().getTime()));
-            stmt.setString(5, String.valueOf(user.getGender()));
-            stmt.setString(6, user.getStreetAndNumber());
+            Connection connection = ConnectionDataAccess.getInstance();
+            PreparedStatement statement = connection.prepareStatement(create ? sqlInsert : sqlUpdate);
+            statement.setString(1, user.getEmail());
+            statement.setString(2, user.getUsername());
+            statement.setString(3, Encryption.createDBPassword(user.getPassword()));
+            statement.setDate(4, new Date(user.getDateOfBirth().getTime()));
+            statement.setString(5, String.valueOf(user.getGender()));
+            statement.setString(6, user.getStreetAndNumber());
 
             String phoneNumber = user.getPhoneNumber();
-            if (phoneNumber == null) stmt.setNull(7, Types.VARCHAR);
-            else stmt.setString(7, phoneNumber);
+            if (phoneNumber == null) statement.setNull(7, Types.VARCHAR);
+            else statement.setString(7, phoneNumber);
 
             String bio = user.getBio();
-            if (bio == null) stmt.setNull(8, Types.VARCHAR);
-            else stmt.setString(8, bio);
+            if (bio == null) statement.setNull(8, Types.VARCHAR);
+            else statement.setString(8, bio);
 
-            stmt.setBoolean(9, user.isAdmin());
-            stmt.setInt(10, user.getHome());
+            statement.setBoolean(9, user.isAdmin());
+            statement.setInt(10, user.getHome());
 
             if (create) {
-                stmt.setDate(11, new Date(System.currentTimeMillis()));
+                statement.setDate(11, new Date(System.currentTimeMillis()));
             } else {
-                stmt.setInt(11, user.getId());
+                statement.setInt(11, user.getId());
             }
 
-            return stmt.executeUpdate();
+            return statement.executeUpdate();
         } catch (SQLException | NoSuchAlgorithmException e){
             throw new UserCreationException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -79,13 +80,15 @@ public class UserDAOImpl implements UserDAO  {
     public Boolean deleteUser(UserModel user) throws UserDeletionException {
         try {
             if (user == null) throw new UserDeletionException("L'utilisateur n'existe pas");
-
+            Connection connection = ConnectionDataAccess.getInstance();
             PreparedStatement ps = connection.prepareStatement("DELETE FROM user WHERE id = ?");
             ps.setInt(1, user.getId());
 
             return ps.executeUpdate() != 0;
         } catch (SQLException e) {
             throw new UserDeletionException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -93,8 +96,9 @@ public class UserDAOImpl implements UserDAO  {
     public List<UserModel> getAllUsers() throws UserSearchException {
         try {
             String sql = "SELECT * FROM user";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
+            Connection connection = ConnectionDataAccess.getInstance();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
 
             List<UserModel> users = new ArrayList<>();
             while (rs.next()) {
@@ -104,6 +108,8 @@ public class UserDAOImpl implements UserDAO  {
             return users;
         } catch (SQLException e) {
             throw new UserSearchException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -111,14 +117,17 @@ public class UserDAOImpl implements UserDAO  {
     public UserModel getUser(int id) throws UserSearchException {
         try {
             String sql = "SELECT * FROM user WHERE id = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
+            Connection connection = ConnectionDataAccess.getInstance();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return fillUser(rs);
             }
         } catch (SQLException  e) {
             throw new UserSearchException("Erreur lors de la récupération de l'utilisateur");
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
@@ -152,6 +161,7 @@ public class UserDAOImpl implements UserDAO  {
         try {
             String sql = "SELECT * FROM locality l " +
                     "WHERE l.localisation = (select c.id from country c where c.name = ?)";
+            Connection connection = ConnectionDataAccess.getInstance();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, countryName);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -169,6 +179,8 @@ public class UserDAOImpl implements UserDAO  {
             }
         } catch (SQLException e) {
             throw new LocalityException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return localities;
     }
@@ -176,8 +188,9 @@ public class UserDAOImpl implements UserDAO  {
     public List<String> getColumnsNames() throws UserSearchException {
         List<String> columnNames;
         try {
-            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM user");
-            ResultSet rs = stmt.executeQuery();
+            Connection connection = ConnectionDataAccess.getInstance();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM user");
+            ResultSet rs = statement.executeQuery();
             ResultSetMetaData metadata = rs.getMetaData();
             int columnCount = metadata.getColumnCount();
             columnNames = new ArrayList<>();
@@ -186,6 +199,8 @@ public class UserDAOImpl implements UserDAO  {
             }
         } catch (SQLException e) {
             throw new UserSearchException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return columnNames;
     }
@@ -197,29 +212,35 @@ public class UserDAOImpl implements UserDAO  {
                     "JOIN locality l ON u.home = l.code " +
                     "JOIN country c ON l.localisation = c.id " +
                     "WHERE u.id = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, userId);
+            Connection connection = ConnectionDataAccess.getInstance();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, userId);
 
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return rs.getString("name");
             }
             throw new CountriesDAOException("Pays non trouvé");
         } catch (SQLException e) {
             throw new CountriesDAOException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public int getNbUser() throws UserSearchException {
         try {
+            Connection connection = ConnectionDataAccess.getInstance();
             String sql = "SELECT COUNT(*) FROM user";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
             throw new UserSearchException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return 0;
     }
@@ -227,18 +248,21 @@ public class UserDAOImpl implements UserDAO  {
     public List<UserModel> getUsersByCountry(String name) throws UserSearchException {
         List<UserModel> users = new ArrayList<>();
         try {
+            Connection connection = ConnectionDataAccess.getInstance();
             String sql = "SELECT * FROM user u " +
                     "JOIN locality l ON u.home = l.code " +
                     "JOIN country c ON l.localisation = c.id " +
                     "WHERE c.name = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, name);
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, name);
+            ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 users.add(fillUser(rs));
             }
         } catch (SQLException e) {
             throw new UserSearchException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return users;
     }
@@ -246,16 +270,19 @@ public class UserDAOImpl implements UserDAO  {
     public List<UserModel> getUsersByAge(Date startDateOfBirth , Date endDateOfBirth) throws UserSearchException {
         List<UserModel> users = new ArrayList<>();
         try {
+            Connection connection = ConnectionDataAccess.getInstance();
             String sql = "SELECT * FROM user WHERE date_of_birth BETWEEN ? AND ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setDate(1, startDateOfBirth);
-            stmt.setDate(2, endDateOfBirth);
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setDate(1, startDateOfBirth);
+            statement.setDate(2, endDateOfBirth);
+            ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 users.add(fillUser(rs));
             }
         } catch (SQLException e) {
             throw new UserSearchException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return users;
     }
@@ -263,10 +290,11 @@ public class UserDAOImpl implements UserDAO  {
     @Override
     public Boolean login(int id, String email, String password) throws LoginException {
         try {
+            Connection connection = ConnectionDataAccess.getInstance();
             String sql = "SELECT email, password FROM user WHERE id = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 String storedEmail = rs.getString("email");
                 String storedPassword = rs.getString("password");
@@ -277,6 +305,8 @@ public class UserDAOImpl implements UserDAO  {
             return false;
         } catch (SQLException | NoSuchAlgorithmException e) {
             throw new LoginException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }

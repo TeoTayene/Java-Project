@@ -1,43 +1,44 @@
 package main.modelPackage;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class LikeModel {
-    private int id;
-    private int postLiked;
-    private int likedBy;
+    private Integer id;
+    private Integer postLiked;
+    private Integer likedBy;
     private Date date;
     private String username;
     private String postContent;
 
-    public LikeModel(int id, Date date, String username, String postContent) {
+    public LikeModel(Integer id, Date date, String username, String postContent) {
         setId(id);
         setDate(date);
         setUsername(username);
         setPostContent(postContent);
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getPostLiked() {
+    public Integer getPostLiked() {
         return postLiked;
     }
 
-    public void setPostLiked(int postLiked) {
+    public void setPostLiked(Integer postLiked) {
         this.postLiked = postLiked;
     }
 
-    public int getLikedBy() {
+    public Integer getLikedBy() {
         return likedBy;
     }
 
-    public void setLikedBy(int likedBy) {
+    public void setLikedBy(Integer likedBy) {
         this.likedBy = likedBy;
     }
 

@@ -6,10 +6,13 @@ import main.modelPackage.NonEditableTableModel;
 import main.modelPackage.UserModel;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ListingPanel extends JPanel implements ActionListener {
@@ -20,6 +23,7 @@ public class ListingPanel extends JPanel implements ActionListener {
     private JButton buttonUpdate;
     private JButton buttonDelete;
     private JButton buttonAdd;
+    private JButton buttonList;
     private JPanel addUserPanel;
     private JScrollPane scrollPane;
     private UserController userController;
@@ -42,6 +46,8 @@ public class ListingPanel extends JPanel implements ActionListener {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
+        buttonList = new JButton("Afficher les utilisateurs");
+        buttonList.addActionListener(this);
         buttonAdd = new JButton("Ajouter un utilisateur");
         buttonAdd.addActionListener(this);
 
@@ -50,6 +56,7 @@ public class ListingPanel extends JPanel implements ActionListener {
         buttonDelete = new JButton("Supprimer un utilisateur");
         buttonDelete.addActionListener(this);
 
+        buttonPanel.add(buttonList);
         buttonPanel.add(buttonAdd);
         buttonPanel.add(buttonUpdate);
         buttonPanel.add(buttonDelete);
@@ -61,7 +68,15 @@ public class ListingPanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == buttonAdd) {
+
+        if (e.getSource() == buttonList) {
+            try {
+                refreshUsersData();
+            } catch (UserSearchException ex) {
+                mainWindow.displayError(ex.toString());
+            }
+        }
+        else if (e.getSource() == buttonAdd) {
             try {
                 // reset le panel d'ajout d'utilisateur
                 this.addUserPanel = new AddUserPanel(mainWindow);
@@ -139,23 +154,104 @@ public class ListingPanel extends JPanel implements ActionListener {
     }
 
     public JTable updateTable(List<UserModel> users, List<String> columnsNames) {
-        Object[][] data = new Object[users.size()][columnsNames.size()];
-        for (int i = 0; i < users.size(); i++) {
-            UserModel user = users.get(i);
-            data[i][0] = user.getId();
-            data[i][1] = user.getEmail();
-            data[i][2] = user.getUsername();
-            data[i][3] = user.getPassword();
-            data[i][4] = user.getDateOfBirth();
-            data[i][5] = user.getGender();
-            data[i][6] = user.getCreatedAt();
-            data[i][7] = user.getStreetAndNumber();
-            data[i][8] = user.getPhoneNumber();
-            data[i][9] = user.getBio();
-            data[i][10] = user.isAdmin();
-            data[i][11] = user.getHome();
+            String[] columnNames = {
+                    "ID",
+                    "Email",
+                    "Username",
+                    "Password",
+                    "Date of Birth",
+                    "Gender",
+                    "Created At",
+                    "Street and Number",
+                    "Phone Number",
+                    "Bio",
+                    "Admin",
+                    "Home"
+            };
+
+            AbstractTableModel model = new AbstractTableModel() {
+                private final Class<?>[] columnClasses = {
+                        Integer.class, String.class, String.class, String.class, Date.class,
+                        String.class, Date.class, String.class, String.class, String.class,
+                        Boolean.class, String.class
+                };
+
+                @Override
+            public int getRowCount() {
+                return users.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return columnNames.length;
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                UserModel user = users.get(rowIndex);
+                switch (columnIndex) {
+                    case 0:
+                        return user.getId();
+                    case 1:
+                        return user.getEmail();
+                    case 2:
+                        return user.getUsername();
+                    case 3:
+                        return user.getPassword();
+                    case 4:
+                        return user.getDateOfBirth();
+                    case 5:
+                        return user.getGender();
+                    case 6:
+                        return user.getCreatedAt();
+                    case 7:
+                        return user.getStreetAndNumber();
+                    case 8:
+                        return user.getPhoneNumber();
+                    case 9:
+                        return user.getBio();
+                    case 10:
+                        return user.isAdmin();
+                    case 11:
+                        return user.getHome();
+                    default:
+                        return null;
+                }
+            }
+
+            @Override
+            public String getColumnName(int column) {
+                return columnNames[column];
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnClasses[columnIndex];
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return false;
+            }
+        };
+
+        JTable table = new JTable(model);
+        table.getTableHeader().setReorderingAllowed(false);
+        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
+        leftRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            Class<?> columnClass = model.getColumnClass(i);
+            if (columnClass == Integer.class || columnClass == Float.class || columnClass == Double.class) {
+                table.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);
+            } else if (columnClass == Boolean.class) {
+                table.getColumnModel().getColumn(i).setCellRenderer(table.getDefaultRenderer(Boolean.class));
+            } else {
+                table.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
+            }
         }
-        NonEditableTableModel model = new NonEditableTableModel(data, columnsNames.toArray());
-        return new JTable(model);
+        return table;
     }
 }

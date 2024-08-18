@@ -1,13 +1,13 @@
 package main.modelPackage;
 
 public class LocalityModel {
-    private int code;
+    private Integer code;
     private String name;
     private String city;
-    private int zipCode;
-    private int localisation;
+    private Integer zipCode;
+    private Integer localisation;
 
-    public LocalityModel(int code, String name, String city, int zipCode, int localisation) {
+    public LocalityModel(Integer code, String name, String city, Integer zipCode, Integer localisation) {
         setCode(code);
         setName(name);
         setCity(city);
@@ -15,11 +15,11 @@ public class LocalityModel {
         setLocalisation(localisation);
     }
 
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(Integer code) {
         this.code = code;
     }
 
@@ -39,19 +39,19 @@ public class LocalityModel {
         this.city = city;
     }
 
-    public int getZipCode() {
+    public Integer getZipCode() {
         return zipCode;
     }
 
-    public void setZipCode(int zipCode) {
+    public void setZipCode(Integer zipCode) {
         this.zipCode = zipCode;
     }
 
-    public int getLocalisation() {
+    public Integer getLocalisation() {
         return localisation;
     }
 
-    public void setLocalisation(int localisation) {
+    public void setLocalisation(Integer localisation) {
         this.localisation = localisation;
     }
 }

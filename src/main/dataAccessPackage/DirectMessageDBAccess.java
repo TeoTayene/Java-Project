@@ -12,16 +12,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DirectMessageDAOImpl implements DirectMessageDAO {
-    private Connection connection;
+public class DirectMessageDBAccess implements DirectMessageDataAccess {
 
-    public DirectMessageDAOImpl() throws ConnectionDataAccessException {
-        connection = ConnectionDataAccess.getInstance();
+    public DirectMessageDBAccess() throws ConnectionDataAccessException {
     }
 
     @Override
     public List<DirectMessageModel> getDirectMessagesByUserId(int userId) throws DirectMessageException {
         try {
+            Connection  connection = ConnectionDataAccess.getInstance();
+
             String sql = "SELECT dm.text, m.url, u.username, mt.type_name FROM direct_message dm " +
                     "LEFT JOIN media m on dm.id = m.attachment " +
                     "LEFT JOIN media_type mt on m.format = mt.id " +
@@ -46,6 +46,8 @@ public class DirectMessageDAOImpl implements DirectMessageDAO {
             return directMessageModels;
         } catch (SQLException e) {
             throw new DirectMessageException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }

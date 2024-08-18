@@ -1,7 +1,7 @@
 package main.controllerPackage;
 
 import main.businessPackage.UserManager;
-import main.dataAccessPackage.UserDAO;
+import main.dataAccessPackage.UserDataAccess;
 import main.exceptionPackage.*;
 import main.modelPackage.LocalityModel;
 import main.modelPackage.UserModel;
@@ -9,7 +9,7 @@ import main.modelPackage.UserModel;
 import java.sql.Date;
 import java.util.List;
 
-public class UserController implements UserDAO {
+public class UserController implements UserDataAccess {
     private UserManager userManager;
 
     public UserController() throws ConnectionDataAccessException {

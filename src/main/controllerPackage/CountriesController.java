@@ -13,7 +13,7 @@ public class CountriesController {
         countriesManager = new CountriesManager();
     }
 
-    public List<String> getCountries() throws CountriesDAOException {
+    public List<String> getCountries() throws CountriesDAOException, ConnectionDataAccessException {
         return countriesManager.getCountries();
     }
 }

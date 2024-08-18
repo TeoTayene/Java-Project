@@ -1,27 +1,27 @@
 package main.businessPackage;
 
-import main.dataAccessPackage.CommunityDAO;
-import main.dataAccessPackage.CommunityDAOImpl;
+import main.dataAccessPackage.CommunityDataAccess;
+import main.dataAccessPackage.CommunityDBAccess;
 import main.exceptionPackage.CommunityDAOException;
 import main.exceptionPackage.ConnectionDataAccessException;
 import main.modelPackage.CommunityModel;
 import main.modelPackage.MemberModel;
 import java.util.List;
 
-public class CommunityManager implements CommunityDAO {
-    private CommunityDAO communityDAO;
+public class CommunityManager implements CommunityDataAccess {
+    private CommunityDataAccess communityDataAccess;
 
     public CommunityManager() throws ConnectionDataAccessException {
-        setCommunityDAO(new CommunityDAOImpl());
+        setCommunityDAO(new CommunityDBAccess());
     }
 
-    public void setCommunityDAO(CommunityDAO communityDAO) {this.communityDAO = communityDAO;}
+    public void setCommunityDAO(CommunityDataAccess communityDataAccess) {this.communityDataAccess = communityDataAccess;}
 
     public List<CommunityModel> getAllCommunities() throws CommunityDAOException {
-        return communityDAO.getAllCommunities();
+        return communityDataAccess.getAllCommunities();
     }
 
     public List<MemberModel> getCommunityById(int id) throws CommunityDAOException {
-        return communityDAO.getCommunityById(id);
+        return communityDataAccess.getCommunityById(id);
     }
 }

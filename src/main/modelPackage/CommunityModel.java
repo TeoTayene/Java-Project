@@ -1,17 +1,17 @@
 package main.modelPackage;
 
 public class CommunityModel {
-    private int id;
+    private Integer id;
     private String name;
     private Integer creator;
 
-    public CommunityModel(int id, String name, Integer creator) {
+    public CommunityModel(Integer id, String name, Integer creator) {
         setId(id);
         setName(name);
         setCreator(creator);
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -27,7 +27,7 @@ public class CommunityModel {
         return creator;
     }
 
-    public void setCreator(int creator) {
+    public void setCreator(Integer creator) {
         this.creator = creator;
     }
 

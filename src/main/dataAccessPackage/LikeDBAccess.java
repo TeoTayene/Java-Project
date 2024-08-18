@@ -6,20 +6,16 @@ import main.modelPackage.LikeModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import java.sql.*;
 
-public class LikeDAOImpl implements LikeDAO {
-    private Connection connection;
-
-    public LikeDAOImpl() throws ConnectionDataAccessException {
-        connection = ConnectionDataAccess.getInstance();
+public class LikeDBAccess implements LikeDataAccess {
+    public LikeDBAccess() throws ConnectionDataAccessException {
     }
 
     public List<LikeModel> getLikesBetween(Date startDate, Date endDate) throws LikeSearchException {
         List<LikeModel> likes = new ArrayList<>();
-        try
-        {
+        try {
+            Connection connection = ConnectionDataAccess.getInstance();
             String sql = "SELECT l.id, l.date, u.username, p.text " +
                     "FROM social_network.like l " +
                     "JOIN user u ON l.liked_by = u.id " +
@@ -40,11 +36,13 @@ public class LikeDAOImpl implements LikeDAO {
                 );
                 likes.add(likeModel);
             }
-
             if (likes.isEmpty()) throw new LikeSearchException("Aucun like trouvé pour cette période.");
             return likes;
-        } catch (SQLException e) {
+
+        } catch (SQLException  e) {
             throw new LikeSearchException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }

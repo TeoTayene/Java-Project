@@ -5,7 +5,7 @@ import main.utilPackage.FormValidator;
 import java.sql.Date;
 
 public class UserModel {
-    private int id;
+    private Integer id;
     private String email;
     private String username;
     private String password;
@@ -18,7 +18,7 @@ public class UserModel {
     private boolean isAdmin;
     private Integer home;
 
-    public UserModel(int id, String email, String username, String password, Date dateOfBirth, char gender,
+    public UserModel(Integer id, String email, String username, String password, Date dateOfBirth, char gender,
                      Date createdAt, String streetAndNumber, String phoneNumber, String bio, boolean isAdmin, int home) {
         setId(id);
         setEmail(email);
@@ -41,11 +41,11 @@ public class UserModel {
 
     public UserModel() {}
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

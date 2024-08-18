@@ -12,24 +12,25 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommunityDAOImpl implements CommunityDAO {
-    private Connection connection;
+public class CommunityDBAccess implements CommunityDataAccess {
 
-    public CommunityDAOImpl() throws ConnectionDataAccessException {
-        connection = ConnectionDataAccess.getInstance();
+    public CommunityDBAccess() {
     }
 
     public List<CommunityModel> getAllCommunities() throws CommunityDAOException {
         List<CommunityModel> communities = new ArrayList<>();
         try {
             String sql = "SELECT * FROM community";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
+            Connection connection = ConnectionDataAccess.getInstance();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 communities.add(fillCommunity(rs));
             }
         } catch (SQLException e) {
             throw new CommunityDAOException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return communities;
     }
@@ -43,14 +44,17 @@ public class CommunityDAOImpl implements CommunityDAO {
                     "JOIN locality l ON u.home = l.code " +
                     "JOIN country p ON l.localisation = p.id " +
                     "WHERE m.community = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
+            Connection connection = ConnectionDataAccess.getInstance();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 community.add(fillMember(rs));
             }
         } catch (SQLException e) {
             throw new CommunityDAOException(e.getMessage());
+        } catch (ConnectionDataAccessException e) {
+            throw new RuntimeException(e);
         }
         return community;
     }

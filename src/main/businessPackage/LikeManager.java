@@ -1,7 +1,7 @@
 package main.businessPackage;
 
-import main.dataAccessPackage.LikeDAO;
-import main.dataAccessPackage.LikeDAOImpl;
+import main.dataAccessPackage.LikeDataAccess;
+import main.dataAccessPackage.LikeDBAccess;
 import main.exceptionPackage.ConnectionDataAccessException;
 import main.exceptionPackage.LikeSearchException;
 import main.modelPackage.LikeModel;
@@ -10,15 +10,15 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
-public class LikeManager implements LikeDAO {
-    private LikeDAO likeDAO;
+public class LikeManager implements LikeDataAccess {
+    private LikeDataAccess likeDataAccess;
 
     public LikeManager() throws ConnectionDataAccessException {
-        setLikeDAO(new LikeDAOImpl());
+        setLikeDAO(new LikeDBAccess());
     }
 
-    public void setLikeDAO(LikeDAO likeDAO) {
-        this.likeDAO = likeDAO;
+    public void setLikeDAO(LikeDataAccess likeDataAccess) {
+        this.likeDataAccess = likeDataAccess;
     }
 
     public List<LikeModel> getLikesBetween(Date startDate, Date endDate) throws LikeSearchException {
@@ -28,6 +28,6 @@ public class LikeManager implements LikeDAO {
         if (endDate.toLocalDate().isAfter(LocalDate.now()))
             throw new LikeSearchException("La date de fin doit être avant demain.");
 
-        return likeDAO.getLikesBetween(startDate, endDate);
+        return likeDataAccess.getLikesBetween(startDate, endDate);
     }
 }

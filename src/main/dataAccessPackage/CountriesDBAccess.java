@@ -7,11 +7,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CountriesDAOImpl implements CountriesDAO {
-    private Connection connection;
+public class CountriesDBAccess implements CountriesDataAccess {
 
-    public CountriesDAOImpl() throws ConnectionDataAccessException {
-        connection = ConnectionDataAccess.getInstance();
+
+    public CountriesDBAccess() throws ConnectionDataAccessException {
+
     }
 
     @Override
@@ -19,6 +19,7 @@ public class CountriesDAOImpl implements CountriesDAO {
         List<String> countries;
         try {
             String sql = "SELECT name FROM country";
+            Connection connection = ConnectionDataAccess.getInstance();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             countries = new ArrayList<>();
@@ -26,7 +27,7 @@ public class CountriesDAOImpl implements CountriesDAO {
             while (resultSet.next()) {
                 countries.add(resultSet.getString("name"));
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionDataAccessException e) {
             throw new CountriesDAOException(e.getMessage());
         }
         return countries;

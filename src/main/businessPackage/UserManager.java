@@ -1,7 +1,7 @@
 package main.businessPackage;
 
-import main.dataAccessPackage.UserDAO;
-import main.dataAccessPackage.UserDAOImpl;
+import main.dataAccessPackage.UserDataAccess;
+import main.dataAccessPackage.UserDBAccess;
 import main.exceptionPackage.*;
 import main.modelPackage.LocalityModel;
 import main.modelPackage.UserModel;
@@ -11,19 +11,19 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
-public class UserManager implements UserDAO {
-    private UserDAO userDAO;
+public class UserManager implements UserDataAccess {
+    private UserDataAccess userDataAccess;
 
     public UserManager() throws ConnectionDataAccessException {
-        setUserDAO(new UserDAOImpl());
+        setUserDAO(new UserDBAccess());
     }
 
-    private void setUserDAO(UserDAO dao) {
-        this.userDAO = dao;
+    private void setUserDAO(UserDataAccess dao) {
+        this.userDataAccess = dao;
     }
 
     public Boolean createUser(UserModel user) throws UserCreationException {
-        return validUser(user) ? userDAO.createUser(user) : false;
+        return validUser(user) ? userDataAccess.createUser(user) : false;
     }
 
     private Boolean validUser(UserModel user) throws UserCreationException {
@@ -90,39 +90,39 @@ public class UserManager implements UserDAO {
 
     @Override
     public List<UserModel> getAllUsers() throws UserSearchException {
-        return userDAO.getAllUsers();
+        return userDataAccess.getAllUsers();
     }
 
     @Override
     public UserModel getUser(int id) throws UserSearchException { 
-        return userDAO.getUser(id);
+        return userDataAccess.getUser(id);
     }
 
     public Boolean updateUser(UserModel user) throws UpdateUserException, UserCreationException {
-        return validUser(user) ? userDAO.updateUser(user) : false;
+        return validUser(user) ? userDataAccess.updateUser(user) : false;
     }
 
     @Override
     public Boolean deleteUser(UserModel user) throws UserDeletionException {
-        return userDAO.deleteUser(user);
+        return userDataAccess.deleteUser(user);
     }
 
     @Override
     public List<LocalityModel> getLocality(String countryName) throws LocalityException {
-        return userDAO.getLocality(countryName);
+        return userDataAccess.getLocality(countryName);
     }
 
     public List<String> getColumnsNames() throws UserSearchException {
-        return userDAO.getColumnsNames();
+        return userDataAccess.getColumnsNames();
     }
 
     @Override
     public String getCountryNameByHome(int userId) throws CountriesDAOException {
-        return userDAO.getCountryNameByHome(userId);
+        return userDataAccess.getCountryNameByHome(userId);
     }
 
     public int getNbUser() throws UserSearchException {
-        return userDAO.getNbUser();
+        return userDataAccess.getNbUser();
     }
 
     public List<UserModel> getUsersByCountry(String name) throws UserSearchException {
@@ -140,7 +140,7 @@ public class UserManager implements UserDAO {
             throw new UserSearchException(e.toString());
         }
 
-        return userDAO.getUsersByCountry(name);
+        return userDataAccess.getUsersByCountry(name);
     }
 
     public List<UserModel> getUsersByAge(Date startDateOfBirth, Date endDateOfBirth) throws UserSearchException {
@@ -157,7 +157,7 @@ public class UserManager implements UserDAO {
         if (endDateOfBirth.toLocalDate().isAfter(Date.valueOf(LocalDate.now()).toLocalDate()))
             throw new UserSearchException("La date de fin ne peut pas être dans le futur");
 
-        List<UserModel> users = userDAO.getUsersByAge(startDateOfBirth, endDateOfBirth);
+        List<UserModel> users = userDataAccess.getUsersByAge(startDateOfBirth, endDateOfBirth);
 
         if (users.isEmpty())
             throw new UserSearchException("Aucun utilisateur trouvé");
@@ -170,6 +170,6 @@ public class UserManager implements UserDAO {
 
     @Override
     public Boolean login(int id, String email, String password) throws LoginException {
-        return userDAO.login(id, email, password);
+        return userDataAccess.login(id, email, password);
     }
 }

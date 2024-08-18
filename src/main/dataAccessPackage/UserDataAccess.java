@@ -7,7 +7,7 @@ import main.modelPackage.UserModel;
 import java.sql.Date;
 import java.util.List;
 
-public interface UserDAO {
+public interface UserDataAccess {
     public Boolean createUser(UserModel user) throws UserCreationException;
     public Boolean updateUser(UserModel user) throws UpdateUserException, UserCreationException;
     public Boolean deleteUser(UserModel user) throws UserDeletionException;

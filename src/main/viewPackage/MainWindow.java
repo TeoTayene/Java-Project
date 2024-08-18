@@ -1,6 +1,6 @@
 package main.viewPackage;
 
-import main.dataAccessPackage.ConnectionDataAccess;
+import main.controllerPackage.ConnectionDataAccessController;
 import main.exceptionPackage.CommunityDAOException;
 import main.exceptionPackage.ConnectionDataAccessException;
 import main.exceptionPackage.UserSearchException;
@@ -25,6 +25,7 @@ public class MainWindow extends JFrame {
     private JPanel jobTaskAgePanel;
     private JPanel threadPanel;
     private MenuBar menuBar;
+    private ConnectionDataAccessController connectionController;
 
     public MainWindow() {
         super(WINDOW_TITLE);
@@ -33,7 +34,7 @@ public class MainWindow extends JFrame {
         setBounds(X_BOUNDS, Y_BOUNDS, FRAME_WIDTH, FRAME_HEIGHT);
 
         try {
-            ConnectionDataAccess.getInstance();
+            connectionController = new ConnectionDataAccessController();
             listingPanel = new ListingPanel(this);
             homePanel = new HomePanel();
             jobTaskCountryPanel = new JobTaskCountryPanel(this);
@@ -54,11 +55,10 @@ public class MainWindow extends JFrame {
 
     public void exit() {
         try {
-            ConnectionDataAccess.closeConnection();
-            System.exit(1);
-        } catch (ConnectionDataAccessException ex) {
-            displayError(ex.toString());
-            System.exit(1);
+            connectionController.closeConnection();
+            System.exit(0);
+        } catch (ConnectionDataAccessException e) {
+            displayError(e.toString());
         }
     }
 
@@ -71,14 +71,7 @@ public class MainWindow extends JFrame {
     }
 
     public void switchPanel(JPanel panel) {
-        if (panel == listingPanel) {
-            try {
-                ((ListingPanel) listingPanel).refreshUsersData();
-                paintPanel(panel);
-            } catch (UserSearchException e) {
-                displayError(e.toString());
-            }
-        } else if (panel == researchCommunity) {
+      if (panel == researchCommunity) {
             try {
                 ((ResearchCommunity) researchCommunity).refreshData();
                 paintPanel(panel);

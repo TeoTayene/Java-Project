@@ -1,28 +1,28 @@
 package main.businessPackage;
 
-import main.dataAccessPackage.CountriesDAO;
-import main.dataAccessPackage.CountriesDAOImpl;
+import main.dataAccessPackage.CountriesDataAccess;
+import main.dataAccessPackage.CountriesDBAccess;
 import main.exceptionPackage.ConnectionDataAccessException;
 import main.exceptionPackage.CountriesDAOException;
 
 import java.util.List;
 
 public class CountriesManager {
-    private CountriesDAO countriesDAO;
+    private CountriesDataAccess countriesDataAccess;
 
     public CountriesManager() throws ConnectionDataAccessException {
-        setCountriesDAO(new CountriesDAOImpl());
+        setCountriesDAO(new CountriesDBAccess());
     }
 
-    public void setCountriesDAO(CountriesDAO countriesDAO) {
-        this.countriesDAO = countriesDAO;
+    public void setCountriesDAO(CountriesDataAccess countriesDataAccess) {
+        this.countriesDataAccess = countriesDataAccess;
     }
 
-    public List<String> getCountries() throws CountriesDAOException {
-        return countriesDAO.getCountries();
+    public List<String> getCountries() throws CountriesDAOException, ConnectionDataAccessException {
+        return countriesDataAccess.getCountries();
     }
 
-    public Boolean countryExists(String country) throws CountriesDAOException {
+    public Boolean countryExists(String country) throws CountriesDAOException, ConnectionDataAccessException {
         List<String> countries = getCountries();
         countries.replaceAll(String::toLowerCase);
 

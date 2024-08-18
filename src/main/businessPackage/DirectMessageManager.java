@@ -1,7 +1,7 @@
 package main.businessPackage;
 
-import main.dataAccessPackage.DirectMessageDAO;
-import main.dataAccessPackage.DirectMessageDAOImpl;
+import main.dataAccessPackage.DirectMessageDataAccess;
+import main.dataAccessPackage.DirectMessageDBAccess;
 import main.exceptionPackage.ConnectionDataAccessException;
 import main.exceptionPackage.DirectMessageException;
 import main.modelPackage.DirectMessageModel;
@@ -9,17 +9,19 @@ import main.modelPackage.DirectMessageModel;
 import java.util.List;
 
 public class DirectMessageManager {
-    private DirectMessageDAO directMessageDAO;
+    private DirectMessageDataAccess directMessageDataAccess;
 
     public DirectMessageManager() throws ConnectionDataAccessException {
-        setDirectMessageDAO(new DirectMessageDAOImpl());
+        setDirectMessageDAO(new DirectMessageDBAccess());
     }
 
     public List<DirectMessageModel> getDirectMessagesByUserId(int userId) throws DirectMessageException {
-        return directMessageDAO.getDirectMessagesByUserId(userId);
+       if(directMessageDataAccess.getDirectMessagesByUserId(userId).isEmpty())
+           throw new DirectMessageException("Aucun message direct n'a été trouvé pour cette utilisateur.");
+        return directMessageDataAccess.getDirectMessagesByUserId(userId);
     }
 
-    public void setDirectMessageDAO(DirectMessageDAOImpl directMessageDAO) {
-        this.directMessageDAO = directMessageDAO;
+    public void setDirectMessageDAO(DirectMessageDBAccess directMessageDAO) {
+        this.directMessageDataAccess = directMessageDAO;
     }
 }

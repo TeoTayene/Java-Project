@@ -98,7 +98,6 @@ public class ResearchPrivateMessage  extends JPanel implements ActionListener {
                 };
                 tableModel.addRow(rowData);
             }
-
         } catch (DirectMessageException e) {
             MainWindow mainWindow = (MainWindow) SwingUtilities.getWindowAncestor(this);
             mainWindow.displayError(e.toString());
