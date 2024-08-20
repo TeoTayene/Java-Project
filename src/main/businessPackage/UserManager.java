@@ -30,7 +30,7 @@ public class UserManager implements UserDataAccess {
         String email = user.getEmail();
         String username = user.getUsername();
         String password = user.getPassword();
-        Date dateOfBirth = user.getDateOfBirth();
+        Date dateOfBirth = (Date) user.getDateOfBirth();
         char gender = user.getGender();
         String streetAndNumber = user.getStreetAndNumber();
         String phoneNumber = user.getPhoneNumber();

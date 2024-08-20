@@ -92,7 +92,7 @@ public class ResearchLike extends JPanel implements ActionListener {
         Date endDate = new Date(((java.util.Date) endDateSpinner.getValue()).getTime());
 
         try {
-            List<LikeModel> likes = likeController.getLikesBetween((java.sql.Date) startDate, (java.sql.Date) endDate);
+            List<LikeModel> likes = likeController.getLikesBetween( startDate,endDate);
             resetRows();
             for (LikeModel like : likes) {
                 Object[] rowData = {

@@ -203,29 +203,40 @@ public class AddUserPanel extends JPanel implements ActionListener, ItemListener
 
     private UserModel createUserFromModel() {
         UserModel user = new UserModel();
-        Date dob = new Date(dateOfBirthModel.getDate().getTime());
-        
+
+        // Assurez-vous que la date est correctement convertie en java.sql.Date
+        java.util.Date dobUtil = dateOfBirthModel.getDate(); // Utilisez java.util.Date
+        java.sql.Date dobSql = new java.sql.Date(dobUtil.getTime()); // Convertissez en java.sql.Date
+
         user.setEmail(email.getText().trim());
         user.setUsername(username.getText().trim());
         user.setPassword(new String(password.getPassword()).trim());
-        user.setDateOfBirth((java.sql.Date) dob);
+        user.setDateOfBirth(dobSql); // Utilisez java.sql.Date directement
 
-        if (Objects.requireNonNull(gender.getSelectedItem()).equals(GENDER_MAN_STRING)) user.setGender('m');
-        else if (Objects.requireNonNull(gender.getSelectedItem()).equals(GENDER_WOMAN_STRING)) user.setGender('w');
-        else user.setGender('o');
+        if (Objects.requireNonNull(gender.getSelectedItem()).equals(GENDER_MAN_STRING))
+            user.setGender('m');
+        else if (Objects.requireNonNull(gender.getSelectedItem()).equals(GENDER_WOMAN_STRING))
+            user.setGender('w');
+        else
+            user.setGender('o');
 
         user.setStreetAndNumber(street.getText().trim());
 
-        if (phoneNumber.getText().trim().isEmpty()) user.setPhoneNumber(null);
-        else user.setPhoneNumber(phoneNumber.getText().trim());
-
-        if (bio.getText().trim().isEmpty()) user.setBio(null);
-        else user.setBio(bio.getText().trim());
+        if (phoneNumber.getText().trim().isEmpty())
+            user.setPhoneNumber(null);
+        else
+            user.setPhoneNumber(phoneNumber.getText().trim());
+        if (bio.getText().trim().isEmpty())
+            user.setBio(null);
+        else
+            user.setBio(bio.getText().trim());
 
         user.setAdmin(isAdmin.isSelected());
         user.setHome(((LocalityItem) Objects.requireNonNull(zipCode.getSelectedItem())).getLocalityId());
+
         return user;
     }
+
 
     private Boolean validateForm() {
         String emailText = email.getText().trim();
