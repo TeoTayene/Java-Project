@@ -9,7 +9,7 @@ import java.awt.event.ItemListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -208,7 +208,7 @@ public class AddUserPanel extends JPanel implements ActionListener, ItemListener
         user.setEmail(email.getText().trim());
         user.setUsername(username.getText().trim());
         user.setPassword(new String(password.getPassword()).trim());
-        user.setDateOfBirth(dob);
+        user.setDateOfBirth((java.sql.Date) dob);
 
         if (Objects.requireNonNull(gender.getSelectedItem()).equals(GENDER_MAN_STRING)) user.setGender('m');
         else if (Objects.requireNonNull(gender.getSelectedItem()).equals(GENDER_WOMAN_STRING)) user.setGender('w');

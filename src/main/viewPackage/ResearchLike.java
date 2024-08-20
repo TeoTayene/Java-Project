@@ -10,7 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 public class ResearchLike extends JPanel implements ActionListener {
@@ -92,7 +92,7 @@ public class ResearchLike extends JPanel implements ActionListener {
         Date endDate = new Date(((java.util.Date) endDateSpinner.getValue()).getTime());
 
         try {
-            List<LikeModel> likes = likeController.getLikesBetween(startDate, endDate);
+            List<LikeModel> likes = likeController.getLikesBetween((java.sql.Date) startDate, (java.sql.Date) endDate);
             resetRows();
             for (LikeModel like : likes) {
                 Object[] rowData = {
